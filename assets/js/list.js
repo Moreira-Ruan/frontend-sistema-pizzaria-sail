@@ -20,7 +20,7 @@ async function listarUsuarios() {
         if (token) {
             console.log('Token encontrado, fazendo requisição para a API...');
 
-            const response = await fetch('http://localhost:80/api/user/listar', {
+            const response = await fetch('http://localhost:8000/api/user/listar', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -107,7 +107,7 @@ async function listarUsuarios() {
 async function excluirUsuario(userId) {
     const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`http://localhost:80/api/user/deletar/${userId}`, {
+        const response = await fetch(`http://localhost:8000/api/user/deletar/${userId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,

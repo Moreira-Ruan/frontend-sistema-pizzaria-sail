@@ -21,9 +21,9 @@
 
     <div class="container text-center">
         <h2 id="welcomeMessage" class="mb-3 fw-normal"></h2>
-        <button id="logoutBtn" class="btn btn-outline-success p-2 m-3">Logout</button>
+        <button id="logoutBtn" class="btn btn-outline-danger p-2 m-3">Logout</button>
         <button id="listBtn" class="btn btn-outline-primary p-2 m-3">Users list</button>
-        <button id="view" class="btn btn-outline-warning text-white p-2 m-3">View</button>
+        <button id="view" class="btn btn-outline-info text-white p-2 m-3">View</button>
     </div>
 
     <script src="./assets/js/dashboard.js"></script>
@@ -34,7 +34,7 @@
             const token = localStorage.getItem('token');
 
             // Faz a requisição para a rota de logout no backend
-            fetch('http://localhost:80/api/logout', {
+            fetch('http://localhost:8000/api/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token, // Inclui o token de autenticação

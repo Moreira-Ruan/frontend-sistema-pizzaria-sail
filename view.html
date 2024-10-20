@@ -18,8 +18,9 @@
             <p>Email: <span id="userEmail"></span></p>
             <p>Creation date: <span id="userCreated"></span></p>
         </div>
-        <button id="logoutBtn" class="btn btn-outline-warning text-white mt-3 me-2">Logout</button>
-        <button id="dashboardBtn" class="btn btn-outline-info text-white mt-3">Dashboard</button>
+        <button id="logoutBtn" class="btn btn-outline-danger text-white mt-3 me-2">Logout</button>
+        <button id="dashboardBtn" class="btn btn-outline-info text-white mt-3 me-2">Dashboard</button>
+        <button id="editBtn" class="btn btn-outline-warning text-white mt-3">Edit</button>
     </div>
 
     <script>
@@ -28,7 +29,7 @@
             const token = localStorage.getItem('token');
 
             // Faz a requisição para a rota de logout no backend
-            fetch('http://localhost:80/api/logout', {
+            fetch('http://localhost:8000/api/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token, // Inclui o token de autenticação
@@ -56,6 +57,9 @@
     <script>
         document.getElementById('dashboardBtn').addEventListener('click', function() {
             window.location.href = 'dashboard.html';
+        });
+        document.getElementById('editBtn').addEventListener('click', function() {
+            window.location.href = 'edit-update.html'
         });
     </script>
 

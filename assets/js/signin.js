@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
         // Enviar os dados de login via API
-        fetch('http://localhost:80/api/public/user/login', {
+        fetch('http://localhost:8000/api/public/user/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
