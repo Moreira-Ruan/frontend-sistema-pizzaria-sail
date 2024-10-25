@@ -1,131 +1,117 @@
-document.addEventListener('DOMContentLoaded', function() {
-    let isPageLoaded = false;
-    if (isPageLoaded) return; // Se a página já foi carregada, não executa novamente
-    isPageLoaded = true;
+document.addEventListener("DOMContentLoaded", function() {
+    const token = localStorage.getItem("token");
+    const mensagem = document.getElementById("mensagemErro");
+    console.log("Token atual:", token);
 
-    console.log('Página carregada');
-    listarUsuarios(); // A chamada é feita apenas ao carregar a página
-});
+    if (!token) {
+        alert("Token não encontrado. Faça login novamente.");
+        window.location.href = "signin.html";
+        return;
+    }
 
-async function listarUsuarios() {
-    const token = localStorage.getItem('token');
-    const userIdLogado = localStorage.getItem('userId');
-    console.log('Token armazenado:', token);
-    console.log('ID do usuário logado:', userIdLogado);
+    // Função para buscar e exibir a lista de usuários
+    function carregarUsuarios() {
+        fetch("http://localhost:80/api/user/listar", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Resposta completa da API:", data);
 
-    let retryCount = 0;
-    const maxRetries = 3;
+            // Verifica se a resposta da API contém a lista de usuários em data.data
+            if (data && data.data) {
+                const usuarios = data.data; // Acessa a lista de usuários dentro de data.data
+                console.log("Lista de usuários recebida:", usuarios);
 
-    try {
-        if (token) {
-            console.log('Token encontrado, fazendo requisição para a API...');
+                const tabelaUsuarios = document.getElementById("tabelaUsuarios");
 
-            const response = await fetch('http://localhost:80/api/user/listar', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+                // Itera sobre cada usuário na lista e adiciona uma linha à tabela
+                usuarios.forEach((user, index) => {
+                    const row = tabelaUsuarios.insertRow();
 
-            console.log('Resposta da API recebida:', response);
+                    const cellIndex = row.insertCell(0);
+                    const cellName = row.insertCell(1);
+                    const cellEmail = row.insertCell(2);
+                    const cellCreationDate = row.insertCell(3);
+                    const cellActions = row.insertCell(4);
 
-            if (response.ok) {
-                const usuarios = await response.json();
-                console.log('Dados dos usuários recebidos:', usuarios);
-                
-                const tabelaUsuarios = document.getElementById('tabelaUsuarios');
-                tabelaUsuarios.innerHTML = '';
+                    cellIndex.textContent = index + 1;
 
-                usuarios.users.data.forEach((usuario, index) => {
-                    console.log(`Adicionando usuário ${usuario.name} na tabela`);
-                    const dataCriacao = new Date(usuario.created_at).toLocaleString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false
-                    });
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${usuario.name}</td>
-                        <td>${usuario.email}</td>
-                        <td>${dataCriacao}</td>
-                        <td>
-                            ${usuario.id != userIdLogado
-                            ? `<button class="btn btn-danger btn-sm excluir-usuario" data-id="${usuario.id}">
-                                    <i class="fas fa-trash-alt"></i>
-                                   </button>`
-                            : ''}
-                        </td>
-                    `;
-                    tabelaUsuarios.appendChild(row);
-                });
+                    // Preenche cada célula com os dados do usuário
+                    cellName.textContent = user.name;
+                    cellEmail.textContent = user.email;
+                    cellCreationDate.textContent = new Date(user.created_at).toLocaleString("pt-BR");
 
-                console.log('Usuários foram adicionados na tabela.');
-
-                document.querySelectorAll('.excluir-usuario').forEach(button => {
-                    button.addEventListener('click', async function () {
-                        const userId = this.getAttribute('data-id');
-                        console.log('Clique detectado no botão de excluir para o usuário:', userId);
-                        const confirmar = confirm('Tem certeza que deseja excluir este usuário?');
-                        if (confirmar) {
-                            await excluirUsuario(userId);
-                        }
-                    });
+                    // Botão de exclusão
+                    const deleteButton = document.createElement("button");
+                    deleteButton.innerHTML = '<i class="fa fa-trash"></i>'; // Ícone de lixeira
+                    deleteButton.classList.add("btn", "btn-danger", "btn-sm");
+                    deleteButton.onclick = () => excluirUsuario(user.id);
+                    cellActions.appendChild(deleteButton);
                 });
             } else {
-                console.error('Erro ao buscar os usuários, status:', response.status);
-                const mensagemErro = document.getElementById('mensagemErro');
-                mensagemErro.textContent = 'Erro ao buscar a lista de usuários. Por favor, tente novamente.';
-                mensagemErro.classList.remove('d-none');
+                console.warn("Dados da lista de usuários não encontrados.");
+                if (mensagem) {
+                    mensagem.textContent = data.message || 'Erro ao carregar a lista de usuários.';
+                    mensagem.classList.add('alert', 'alert-danger');
+                }
             }
-        } else {
-            console.log('Token não encontrado. Solicite ao usuário que faça login novamente.');
-            const mensagemErro = document.getElementById('mensagemErro');
-            mensagemErro.textContent = 'Token não encontrado. Faça login novamente.';
-            mensagemErro.classList.remove('d-none');
-        }
-    } catch (error) {
-        retryCount++;
-        if (retryCount <= maxRetries) {
-            console.log(`Tentativa ${retryCount} de ${maxRetries}`);
-            listarUsuarios();
-        } else {
-            console.error('Erro ao carregar a lista de usuários após várias tentativas:', error);
-            const mensagemErro = document.getElementById('mensagemErro');
-            mensagemErro.textContent = 'Erro ao carregar a lista de usuários. Tente novamente.';
-            mensagemErro.classList.remove('d-none');
-        }
-    }
-}
-
-// Função para excluir o usuário
-async function excluirUsuario(userId) {
-    const token = localStorage.getItem('token');
-    try {
-        const response = await fetch(`http://localhost:80/api/user/deletar/${userId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
+        })
+        .catch(error => {
+            console.error("Erro ao carregar lista de usuários:", error);
+            if (mensagem) {
+                mensagem.textContent = 'Erro ao carregar a lista de usuários.';
+                mensagem.classList.add('alert', 'alert-danger');
+            }
         });
-
-        if (response.ok) {
-            alert('Usuário excluído com sucesso!');
-            listarUsuarios(); // Recarregar a lista de usuários
-        } else {
-            throw new Error('Erro ao excluir o usuário');
-        }
-    } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao excluir o usuário.');
     }
-}
 
-// Chama a função para listar os usuários assim que a página for carregada
-document.addEventListener('DOMContentLoaded', listarUsuarios);
+    // Função para excluir um usuário específico
+    function excluirUsuario(userId) {
+        if (!confirm("Tem certeza de que deseja excluir este usuário?")) return;
+
+        fetch(`http://localhost:80/api/user/deletar/${userId}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log(`Usuário com ID ${userId} deletado com sucesso.`);
+                location.reload(); // Recarrega a página para atualizar a lista
+            } else {
+                console.error("Erro ao deletar o usuário:", response);
+            }
+        })
+        .catch(error => console.error("Erro ao deletar o usuário:", error));
+    }
+
+    // Chamando a função para carregar os usuários ao carregar a página
+    carregarUsuarios();
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+        fetch("http://localhost:80/api/logout", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                localStorage.clear();
+                window.location.href = "signin.html";
+            } else {
+                console.error("Erro ao deslogar");
+            }
+        })
+        .catch(error => console.error("Erro ao realizar o logout:", error));
+    });
+});

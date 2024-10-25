@@ -1,46 +1,42 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById('registerForm');
+    const form = document.getElementById('signupForm');
     const mensagem = document.getElementById('mensagem');
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        console.log("Formulário de cadastro submetido");
 
-        const userData = {
+        const signupData = {
             name: document.getElementById('name').value,
             email: document.getElementById('email').value,
             password: document.getElementById('password').value,
             password_confirmation: document.getElementById('password_confirmation').value
         };
+        console.log("Dados de cadastro:", signupData);
 
-        // Enviar os dados de cadastro via API
         fetch('http://localhost:80/api/public/user/cadastrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(signupData)
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Erro ao cadastrar o usuário');
-            }
-        })
+        .then(response => response.json())
         .then(data => {
-            if (data.status === 201) {
-                mensagem.textContent = 'Usuário cadastrado com sucesso!';
+            console.log("Resposta da API de cadastro:", data);
+            if (data.status) {
+                mensagem.textContent = 'Cadastro realizado com sucesso!';
                 mensagem.classList.add('alert', 'alert-success');
                 setTimeout(() => {
-                    window.location.href = 'signin.html'; // Redireciona para a página de login
-                }, 2000);
+                    window.location.href = 'signin.html';
+                }, 1000);
             } else {
-                mensagem.textContent = 'Erro ao cadastrar: ' + data.message;
-                mensagem.classList.add('alert', 'alert-danger');
+                throw new Error(data.message || 'Erro ao cadastrar');
             }
         })
         .catch(error => {
-            mensagem.textContent = 'Erro ao realizar o cadastro: ' + error.message;
+            console.error("Erro no cadastro:", error.message);
+            mensagem.textContent = 'Erro no cadastro: ' + error.message;
             mensagem.classList.add('alert', 'alert-danger');
         });
     });

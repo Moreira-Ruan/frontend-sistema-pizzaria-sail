@@ -3,14 +3,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const mensagem = document.getElementById('mensagem');
 
     form.addEventListener('submit', function(e) {
-        e.preventDefault(); // Previne o comportamento padrão de enviar o formulário
+        e.preventDefault();
+        console.log("Formulário de login submetido");
 
+        // Dados de login capturados do formulário
         const loginData = {
             email: document.getElementById('email').value,
             password: document.getElementById('password').value
         };
+        console.log("Dados de login:", loginData);
 
-        // Enviar os dados de login via API
+        // Enviando dados de login via API
         fetch('http://localhost:80/api/public/user/login', {
             method: 'POST',
             headers: {
@@ -18,30 +21,28 @@ document.addEventListener("DOMContentLoaded", function() {
             },
             body: JSON.stringify(loginData)
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();  // Converte a resposta para JSON
-            } else {
-                throw new Error('Credenciais inválidas'); // Mensagem de erro clara
-            }
-        })
+        .then(response => response.json())
         .then(data => {
-            if (data.usuario && data.usuario.token) {
-                localStorage.setItem('token', data.usuario.token);
-                localStorage.setItem('userId', data.usuario.id);
-                mensagem.textContent = `Bem-vindo, ${data.usuario.name}! Login realizado com sucesso.`;
+            console.log("Resposta da API:", data);
+            if (data.status && data.token) {
+                // Armazena token e ID do usuário
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userId', data.user.id);
+                mensagem.textContent = `Bem-vindo, ${data.user.name}! Login realizado com sucesso.`;
                 mensagem.classList.remove('alert-danger');
                 mensagem.classList.add('alert', 'alert-success');
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';  // Redireciona após 1 segundo
+                    window.location.href = 'dashboard.html';
                 }, 1000); 
             } else {
-                throw new Error('Credenciais inválidas');
+                throw new Error(data.message || 'Credenciais inválidas');
             }
         })
         .catch(error => {
+            console.error("Erro no processo:", error.message);
             mensagem.textContent = 'Erro no login: ' + error.message;
             mensagem.classList.add('alert', 'alert-danger');
         });
     });
 });
+    

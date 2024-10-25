@@ -1,91 +1,83 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById('registerForm');
+document.addEventListener('DOMContentLoaded', function() {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
     const mensagem = document.getElementById('mensagem');
 
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-
-    console.log('Token armazenado:' + token)
-    console.log('ID do usuario:' + userId)
+    console.log("Token atual:", token, "ID do usuário:", userId);
 
     if (!token || !userId) {
-        console.error('Token ou ID do usuário não encontrados. Faça login novamente.');
-        mensagem.textContent = 'Erro: Token ou ID do usuário não encontrados. Faça login novamente.';
+        alert('Usuário não encontrado. Faça login novamente.');
         window.location.href = 'signin.html';
         return;
     }
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();  // Previne o comportamento padrão de recarregar a página
+    // Função para preencher os campos com os dados do usuário
+    function preencherDadosUsuario(user) {
+        document.getElementById('name').value = user.name || '';
+        document.getElementById('email').value = user.email || '';
+    }
 
-        const user = {
-            name: document.getElementById('name').value.trim(),
-            email: document.getElementById('email').value.trim(),
-        };
-
-        const password = document.getElementById('password').value;
-        const password_confirmation = document.getElementById('password_confirmation').value;
-
-        // Se a senha foi preenchida, adiciona ao objeto user
-        if (password) {
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-
-            if (!passwordRegex.test(password)) {
-                mensagem.textContent = 'A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula, um número e um caractere especial.';
-                console.log('Erro na validação da senha.');
-                return;
-            }
-
-            if (password !== password_confirmation) {
-                mensagem.textContent = 'A confirmação da senha não corresponde à senha.';
-                console.log('Erro: confirmação da senha não corresponde.');
-                return;
-            }
-
-            user.password = password;
-            user.password_confirmation = password_confirmation;
+    // Buscar dados do usuário para exibição
+    fetch(`http://localhost:80/api/user/visualizar/${userId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Dados do usuário recebidos:", data);
+        if (data.status === true && data.user) {
+            preencherDadosUsuario(data.user);
+        } else {
+            throw new Error('Erro ao carregar os dados do usuário');
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao buscar os dados do usuário:", error.message);
+        mensagem.textContent = 'Erro ao carregar dados: ' + error.message;
+        mensagem.classList.add('alert', 'alert-danger');
+    });
 
-        console.log('Enviando dados do usuário para atualização:', user);
+    // Atualização de dados do usuário
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log("Formulário de atualização submetido");
 
-        // Envia a requisição para atualizar o usuário
+        const updateData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            password_confirmation: document.getElementById('password_confirmation').value
+        };
+        console.log("Dados de atualização:", updateData);
+
         fetch(`http://localhost:80/api/user/atualizar/${userId}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(user)
+            body: JSON.stringify(updateData)
         })
-        .then(response => {
-            console.log('Resposta da API recebida:', response);
-            if (!response.ok) {
-                throw new Error('Erro ao realizar a atualização');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Dados retornados pela API:', data);
-            if (data.status === 200) {
-                mensagem.textContent = `Usuário ${user.name} foi atualizado com sucesso!`;
-
-                // Após 3 segundos, redireciona para a página de visualização
+            console.log("Resposta da API de atualização:", data);
+            if (data.status === true) {
+                mensagem.textContent = 'Usuário atualizado com sucesso!';
+                mensagem.classList.add('alert', 'alert-success');
                 setTimeout(() => {
-                    window.location.href = 'view.html';  // Altere para o caminho correto da sua página de visualização
-                }, 3000);
+                    window.location.href = 'view.html';
+                }, 3000); 
             } else {
-                mensagem.textContent = 'Erro ao atualizar: ' + data.mensagem;
-                console.error('Erro na atualização:', data.mensagem);
+                throw new Error(data.message || 'Erro ao atualizar usuário');
             }
         })
         .catch(error => {
-            mensagem.textContent = 'Erro ao realizar a atualização. Tente novamente.';
-            console.error('Erro de rede ao tentar atualizar:', error);
+            console.error("Erro na atualização:", error.message);
+            mensagem.textContent = 'Erro ao atualizar: ' + error.message;
+            mensagem.classList.add('alert', 'alert-danger');
         });
-    });
-
-    document.getElementById('cancelBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = 'view.html';
     });
 });
