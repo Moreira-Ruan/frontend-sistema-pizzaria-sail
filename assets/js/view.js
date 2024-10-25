@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let retryCount = 0;
         const maxRetries = 3;
 
-        fetch(`http://localhost:8000/api/user/visualizar/${userId}`, {
+        fetch(`http://localhost:80/api/user/visualizar/${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

@@ -47,7 +47,7 @@
                 const token = localStorage.getItem('token');
     
                 // Faz a requisição para a rota de logout no backend
-                fetch('http://localhost:8000/api/logout', {
+                fetch('http://localhost:80/api/logout', {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token, // Inclui o token de autenticação

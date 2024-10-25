@@ -1,62 +1,47 @@
-// Este evento é disparado assim que o conteúdo HTML da página foi completamente carregado e processado.
-// Garante que o JavaScript só seja executado após a estrutura da página estar pronta.
 document.addEventListener("DOMContentLoaded", function() {
-    // Captura o formulário de registro através do seu ID 'registerForm'.
     const form = document.getElementById('registerForm');
-
-    // Captura o elemento onde será exibida a mensagem de sucesso ou erro ao usuário, através do ID 'mensagem'.
     const mensagem = document.getElementById('mensagem');
 
-    // Adiciona um ouvinte de evento que será disparado quando o formulário for enviado (submit).
     form.addEventListener('submit', function(e) {
-        // Evita que o comportamento padrão de recarregar a página ocorra
         e.preventDefault();
-        console.log("Formulário submetido, comportamento padrão de recarregamento foi impedido.");
 
-        const user = {
+        const userData = {
             name: document.getElementById('name').value,
             email: document.getElementById('email').value,
             password: document.getElementById('password').value,
             password_confirmation: document.getElementById('password_confirmation').value
         };
 
-        // Validação da senha
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-        if (!passwordRegex.test(user.password)) {
-            mensagem.textContent = 'A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula, um número e um caractere especial.';
-            return;
-        }
-
-        // Verifica se a confirmação da senha é igual à senha
-        if (user.password !== user.password_confirmation) {
-            mensagem.textContent = 'A confirmação da senha não corresponde à senha.';
-            return;
-        }
-
-        // Realiza uma requisição HTTP para a API que irá processar o cadastro.
-        fetch('http://localhost:8000/api/public/user/cadastrar', {
+        // Enviar os dados de cadastro via API
+        fetch('http://localhost:80/api/public/user/cadastrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(user)
+            body: JSON.stringify(userData)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 200) {
-                // Sucesso no cadastro
-                mensagem.textContent = `Usuário ${user.name} foi cadastrado com sucesso! Bem-vindo(a)!`;
-                form.reset(); // Reseta o formulário após o sucesso
+        .then(response => {
+            if (response.ok) {
+                return response.json();
             } else {
-                // Erro no cadastro
-                mensagem.textContent = 'Erro no cadastro: ' + data.message;
+                throw new Error('Erro ao cadastrar o usuário');
+            }
+        })
+        .then(data => {
+            if (data.status === 201) {
+                mensagem.textContent = 'Usuário cadastrado com sucesso!';
+                mensagem.classList.add('alert', 'alert-success');
+                setTimeout(() => {
+                    window.location.href = 'signin.html'; // Redireciona para a página de login
+                }, 2000);
+            } else {
+                mensagem.textContent = 'Erro ao cadastrar: ' + data.message;
+                mensagem.classList.add('alert', 'alert-danger');
             }
         })
         .catch(error => {
-            // Erro na comunicação com a API
-            mensagem.textContent = 'Erro ao realizar o cadastro. Tente novamente.';
-            console.error("Erro de rede ao tentar cadastrar:", error);
+            mensagem.textContent = 'Erro ao realizar o cadastro: ' + error.message;
+            mensagem.classList.add('alert', 'alert-danger');
         });
     });
 });

@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
 
+    console.log('Token armazenado:' + token)
+    console.log('ID do usuario:' + userId)
+
     if (!token || !userId) {
         console.error('Token ou ID do usuário não encontrados. Faça login novamente.');
         mensagem.textContent = 'Erro: Token ou ID do usuário não encontrados. Faça login novamente.';
@@ -46,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log('Enviando dados do usuário para atualização:', user);
 
         // Envia a requisição para atualizar o usuário
-        fetch(`http://localhost:8000/api/user/atualizar/${userId}`, {
+        fetch(`http://localhost:80/api/user/atualizar/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -82,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.getElementById('cancelBtn').addEventListener('click', function(e) {
-        e.preventDefault();  // Previne qualquer comportamento padrão
-        window.location.href = 'view.html';  // Altere para o caminho correto da sua página de visualização
+        e.preventDefault();
+        window.location.href = 'view.html';
     });
 });
