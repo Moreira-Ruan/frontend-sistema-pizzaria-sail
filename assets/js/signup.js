@@ -41,3 +41,30 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+
+// Função para alterar o tipo do input e alternar entre o icone fa fa-eye e fa fa-eye-slash
+document.addEventListener("DOMContentLoaded", function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordConfirm = document.getElementById('togglePasswordConfirm');
+    const passwordConfirmInput = document.getElementById('password_confirmation');
+
+    // Função para alternar visibilidade de senha e o ícone correspondente
+    function toggleVisibility(icon, input) {
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    }
+
+    // Evento de clique para o campo Password
+    togglePassword.addEventListener('click', function () {
+        toggleVisibility(togglePassword, passwordInput);
+    });
+
+    // Evento de clique para o campo Repeat Password
+    togglePasswordConfirm.addEventListener('click', function () {
+        toggleVisibility(togglePasswordConfirm, passwordConfirmInput);
+    });
+});
+

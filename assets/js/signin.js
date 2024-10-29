@@ -45,4 +45,21 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+
+// Função para alterar o tipo do input e alternar entre o icone fa fa-eye e fa fa-eye-slash
+document.addEventListener("DOMContentLoaded", function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        // Alternar o tipo de input entre 'password' e 'text'
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Alternar o ícone entre fa-eye e fa-eye-slash
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+});
+
     
