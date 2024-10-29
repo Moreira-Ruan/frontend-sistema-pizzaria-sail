@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Buscar dados do usuário para exibição
-    fetch(`http://localhost:80/api/user/visualizar/${userId}`, {
+    fetch(`http://localhost:8000/api/user/visualizar/${userId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
         console.log("Dados do usuário recebidos:", data);
-        if (data.status === true && data.user) {
+        if (data.status === 200 && data.user) {
             preencherDadosUsuario(data.user);
         } else {
             throw new Error('Erro ao carregar os dados do usuário');
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         console.log("Dados de atualização:", updateData);
 
-        fetch(`http://localhost:80/api/user/atualizar/${userId}`, {
+        fetch(`http://localhost:8000/api/user/atualizar/${userId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,

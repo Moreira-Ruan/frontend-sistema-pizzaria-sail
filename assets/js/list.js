@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Função para buscar e exibir a lista de usuários
     function carregarUsuarios() {
-        fetch("http://localhost:80/api/user/listar", {
+        fetch("http://localhost:8000/api/user/listar", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function excluirUsuario(userId) {
         if (!confirm("Tem certeza de que deseja excluir este usuário?")) return;
 
-        fetch(`http://localhost:80/api/user/deletar/${userId}`, {
+        fetch(`http://localhost:8000/api/user/deletar/${userId}`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Logout
     document.getElementById("logoutBtn").addEventListener("click", function() {
-        fetch("http://localhost:80/api/logout", {
+        fetch("http://localhost:8000/api/logout", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`,

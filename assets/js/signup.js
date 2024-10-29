@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
         };
         console.log("Dados de cadastro:", signupData);
 
-        fetch('http://localhost:80/api/public/user/cadastrar', {
+        fetch('http://localhost:8000/api/public/user/cadastrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

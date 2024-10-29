@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    fetch(`http://localhost:80/api/user/visualizar/${userId}`, {
+    fetch(`http://localhost:8000/api/user/visualizar/${userId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`

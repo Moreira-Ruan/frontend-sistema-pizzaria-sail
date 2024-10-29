@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Função de logout
     document.getElementById('logoutBtn').addEventListener('click', function() {
         console.log("Solicitando logout...");
-        fetch('http://localhost:80/api/logout', {
+        fetch('http://localhost:8000/api/logout', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
